@@ -3,8 +3,7 @@
 > CNN Encoder → 3DMM → GCN Mesh Refinement → Differentiable Rendering
 
 ---
-
-## Project Structure
+## Structure
 
 ```
 FaceARCs/
