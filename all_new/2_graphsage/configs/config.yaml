@@ -1,0 +1,137 @@
+# configs/config.yaml
+# FaceARCs - Face Analysis and Reconstruction Components System
+# Configuration for unannotated single-view dataset
+
+# ─────────────────────────────────────────
+# DATASET
+# ─────────────────────────────────────────
+dataset:
+  root_dir: "./data/images"          # folder containing raw face images
+  image_size: 224                    # resize all images to this
+  train_split: 0.85
+  val_split: 0.10
+  test_split: 0.05
+  num_workers: 0             # keep 0: MediaPipe FaceMesh is not picklable on Windows
+  augmentation: true
+
+# ─────────────────────────────────────────
+# 3DMM (Basel Face Model prior)
+# ─────────────────────────────────────────
+bfm:
+  model_path: "./data/BFM/model2019_bfm.h5"   # BFM2019 HDF5 format
+  n_shape: 80          # number of shape PCA components (max 199)
+  n_exp: 64            # number of expression components (max 100)
+  n_tex: 80            # number of texture components (max 199)
+  n_vertices: 10698    # BFM2019 vertex count
+
+# ─────────────────────────────────────────
+# MODEL ARCHITECTURE
+# ─────────────────────────────────────────
+model:
+  # CNN Backbone (feature extractor)
+  backbone: "resnet50"               # resnet50 | resnet34 | efficientnet_b3
+  pretrained: true
+  feature_dim: 2048
+
+  # 3DMM coefficient regressor
+  coeff_dims:
+    shape: 80
+    exp: 64
+    tex: 80
+    angles: 3            # Euler angles
+    translation: 3
+    scale: 1
+
+
+  # GCN Refinement Network
+  gcn:
+    # num_layers: 3
+    # hidden_dim: 128
+    # dropout: 0.1
+    # heads: 2             # multi-head attention in GAT layers
+    # residual: true
+    # max_verts: 10698      # max vertices processed by GCN per batch item (memory cap)
+
+    # arch: "gat"        # gcn | graphsage | gat
+    # num_layers: 3
+    # hidden_dim: 128
+    # dropout: 0.1
+    # heads: 2           # only used by gat
+    # residual: true
+    # max_verts: 10000
+
+    arch: "graphsage"
+    num_layers: 2     # deeper helps here
+    hidden_dim: 128    # wider than default
+    dropout: 0.1
+    residual: true
+    max_verts: 10698
+
+    # arch: "gat"
+    # num_layers: 3      # needs at least 3 layers
+    # hidden_dim: 128
+    # heads: 4
+    # dropout: 0.1
+    # residual: true
+    # max_verts: 10698
+
+    # arch: "gcn"
+    # num_layers: 4
+    # hidden_dim: 256
+    # dropout: 0.1
+    # residual: true
+    # max_verts: 10698
+
+# ─────────────────────────────────────────
+# SELF-SUPERVISED TRAINING
+# ─────────────────────────────────────────
+training:
+  epochs: 100
+  batch_size: 6
+  accumulate_grad_batches: 3
+  learning_rate: 5.0e-5
+  weight_decay: 1.0e-5
+  scheduler: "cosine"    # cosine | step | plateau
+  warmup_epochs: 5
+  grad_clip: 1.0
+  save_every: 10          # save checkpoint every N epochs
+  device: "cuda"         # cuda | cpu
+
+  # Loss weights (self-supervised, no annotations needed)
+  loss_weights:
+    photometric: 1.0      # re-render vs input pixel loss
+    landmark: 0.5         # pseudo-landmark loss via mediapipe
+    shape_reg: 0.1        # regularize 3DMM coefficients
+    tex_reg: 0.1          # regularize texture coefficients
+    smooth: 0.05          # mesh smoothness / Laplacian
+    perceptual: 0.3       # VGG perceptual loss
+    symmetry: 0.2         # face symmetry loss
+    id_preserve: 0.5      # ArcFace identity preservation
+
+# ─────────────────────────────────────────
+# RENDERING
+# ─────────────────────────────────────────
+renderer:
+  image_size: 224
+  blur_radius: 0.0
+  faces_per_pixel: 1
+  mode: "mesh"       # "mesh" | "nerf" | "gaussian"
+  image_size: 224
+  blur_radius: 0.0
+  faces_per_pixel: 1
+  # NeRF-specific
+  nerf_size: 64          # internal NeRF render resolution (upsampled to image_size)
+  nerf_samples: 64       # ray samples per pixel
+  nerf_near: 0.5
+  nerf_far: 3.0
+  nerf_coeff_embed: 64
+  nerf_hidden: 256
+
+# ─────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────
+paths:
+  checkpoints: "./checkpoints"
+  outputs: "./outputs"
+  logs: "./logs"
+  pretrained_arcface: "./data/pretrained/model.onnx"
