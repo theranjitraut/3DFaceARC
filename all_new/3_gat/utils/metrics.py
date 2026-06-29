@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import numpy as np
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# Helpers 
 
 def _to_01(x: torch.Tensor) -> torch.Tensor:
     """
@@ -25,7 +25,7 @@ def _to_01(x: torch.Tensor) -> torch.Tensor:
     return x.clamp(0.0, 1.0)
 
 
-# ── Image Quality ─────────────────────────────────────────────────────────────
+# Image Quality 
 
 def psnr(rendered: torch.Tensor, target: torch.Tensor) -> float:
     """
@@ -84,7 +84,7 @@ def mae(rendered: torch.Tensor, target: torch.Tensor) -> float:
     return F.l1_loss(rendered, target).item()
 
 
-# ── Geometry Metrics ──────────────────────────────────────────────────────────
+# Geometry Metrics
 
 def mesh_regularity(verts: torch.Tensor, faces: torch.Tensor) -> float:
     """
@@ -143,7 +143,7 @@ def mean_edge_length(verts: torch.Tensor, faces: torch.Tensor) -> float:
     return torch.cat([e01, e12, e20]).mean().item()
 
 
-# ── Landmark Metrics ──────────────────────────────────────────────────────────
+# Landmark Metrics
 
 def nme_2d(pred_lmks: torch.Tensor, gt_lmks: torch.Tensor) -> float:
     """
@@ -165,7 +165,7 @@ def nme_2d(pred_lmks: torch.Tensor, gt_lmks: torch.Tensor) -> float:
     return err.mean().item()
 
 
-# ── Identity Metrics ──────────────────────────────────────────────────────────
+# Identity Metrics
 
 def cosine_identity(embed_rendered: torch.Tensor,
                     embed_input: torch.Tensor) -> float:
@@ -185,7 +185,7 @@ def cosine_identity(embed_rendered: torch.Tensor,
     ).mean().item()
 
 
-# ── Master compute_metrics ────────────────────────────────────────────────────
+#  Master compute_metrics
 
 def compute_metrics(model_out: dict, batch: dict) -> dict:
     """
@@ -208,7 +208,7 @@ def compute_metrics(model_out: dict, batch: dict) -> dict:
 
     metrics = {}
 
-    # ── Image quality ─────────────────────────────────────────────────────────
+    # Image quality
     try: metrics['psnr']              = psnr(rendered, target)
     except: metrics['psnr']           = 0.0
 
@@ -218,7 +218,7 @@ def compute_metrics(model_out: dict, batch: dict) -> dict:
     try: metrics['mae']               = mae(rendered, target)
     except: metrics['mae']            = 0.0
 
-    # ── Geometry ──────────────────────────────────────────────────────────────
+    # Geometry 
     try: metrics['mesh_regularity']   = mesh_regularity(verts, faces)
     except: metrics['mesh_regularity'] = 0.0
 
@@ -228,7 +228,7 @@ def compute_metrics(model_out: dict, batch: dict) -> dict:
     try: metrics['mean_edge_length']  = mean_edge_length(verts, faces)
     except: metrics['mean_edge_length'] = 0.0
 
-    # ── Identity ──────────────────────────────────────────────────────────────
+    # Identity
     try:
         metrics['cosine_identity'] = cosine_identity(
             model_out['id_embed_rendered'],
@@ -237,7 +237,7 @@ def compute_metrics(model_out: dict, batch: dict) -> dict:
     except:
         metrics['cosine_identity'] = 0.0
 
-    # ── Landmarks ─────────────────────────────────────────────────────────────
+    # Landmarks 
     try:
         # Get projected 2D landmarks from predicted vertices
         V     = verts.shape[1]
@@ -253,7 +253,7 @@ def compute_metrics(model_out: dict, batch: dict) -> dict:
     except:
         metrics['nme_2d'] = 0.0
 
-    # ── Debug: log rendered image stats once ──────────────────────────────────
+    # Debug: log rendered image stats once
     # Uncomment during debugging to catch black/constant rendered images:
     # print(f"rendered mean={rendered.mean():.4f} std={rendered.std():.4f} "
     #       f"min={rendered.min():.4f} max={rendered.max():.4f}")

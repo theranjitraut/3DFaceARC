@@ -1,7 +1,5 @@
 """
 utils/plot_metrics.py
-FaceARCs — Complete Metrics Tracking and Plot Saving Utility.
-
 Saves the following plots automatically during and after training:
     1.  Train vs Validation Loss (total)          — per epoch
     2.  Individual Loss Terms (7 sub-losses)      — per epoch
@@ -39,10 +37,7 @@ matplotlib.rcParams['figure.facecolor']  = 'white'
 matplotlib.rcParams['axes.facecolor']    = 'white'
 matplotlib.rcParams['savefig.facecolor'] = 'white'
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Colour palette (consistent across all plots)
-# ─────────────────────────────────────────────────────────────────────────────
 COLOURS = {
     'train':             '#2196F3',   # blue
     'val':               '#F44336',   # red
@@ -84,10 +79,7 @@ LOSS_LABELS = {
 # Shared savefig kwargs — guarantees white background on every plot
 _SAVE_KW = dict(dpi=150, bbox_inches='tight', facecolor='white')
 
-
-# ─────────────────────────────────────────────────────────────────────────────
 # MetricsTracker
-# ─────────────────────────────────────────────────────────────────────────────
 class MetricsTracker:
     """
     Tracks and saves all training metrics epoch by epoch.
@@ -135,7 +127,7 @@ class MetricsTracker:
             print(f"[Metrics] Resumed history from {self.json_path} "
                   f"({len(self.history['epochs'])} epochs)")
 
-    # ── update methods ────────────────────────────────────────────────────────
+    # update methods
 
     def update_train(self, epoch: int, losses: dict,
                      lr: float = 0.0, scaler_scale: float = 1.0):
@@ -192,7 +184,7 @@ class MetricsTracker:
 
         self._save_json()
 
-    # ── JSON persistence ──────────────────────────────────────────────────────
+    # JSON persistence
 
     def _save_json(self):
         with open(self.json_path, 'w') as f:
@@ -205,7 +197,7 @@ class MetricsTracker:
         for k, v in saved.items():
             self.history[k] = v
 
-    # ── helpers ───────────────────────────────────────────────────────────────
+    # helpers 
 
     def _epochs(self):
         return self.history['epochs']
@@ -238,9 +230,7 @@ class MetricsTracker:
                 color=colour, linewidth=2, marker=marker,
                 markersize=4, label=label)
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 1 — Train vs Validation Total Loss
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_total_loss(self):
         fig, ax = plt.subplots(figsize=(10, 5), facecolor='white')
         ax.set_facecolor('white')
@@ -275,9 +265,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 01_total_loss")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 2 — Individual Loss Terms (Training)
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_individual_losses_train(self):
         fig, axes = plt.subplots(3, 3, figsize=(15, 12), facecolor='white')
         axes   = axes.flatten()
@@ -320,9 +308,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 02_individual_losses_train")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 3 — Individual Loss Terms (Train vs Val)
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_individual_losses_comparison(self):
         val_epochs = self._val_epochs()
         if not val_epochs:
@@ -359,9 +345,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 03_individual_losses_comparison")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 4 — PSNR Curve
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_psnr(self):
         if not self.history['psnr']:
             return
@@ -394,9 +378,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 04_psnr")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 5 — SSIM Curve
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_ssim(self):
         if not self.history['ssim']:
             return
@@ -429,9 +411,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 05_ssim")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 6 — Mesh Regularity
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_mesh_regularity(self):
         if not self.history['mesh_reg']:
             return
@@ -453,9 +433,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 06_mesh_regularity")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 7 — Learning Rate Schedule
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_learning_rate(self):
         if not self.history['lr']:
             return
@@ -473,9 +451,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 07_learning_rate")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 8 — GradScaler Scale Factor
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_scaler_scale(self):
         if not self.history['scaler_scale']:
             return
@@ -501,9 +477,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 08_scaler_scale")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 9 — Train/Val Gap (Overfitting Monitor)
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_overfitting_gap(self):
         if not self.history['val_total']:
             return
@@ -551,9 +525,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 09_overfitting_gap")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 10 — Loss Heatmap (all 7 losses across all epochs)
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_loss_heatmap(self):
         epochs = self._epochs()
         if len(epochs) < 2:
@@ -596,9 +568,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 10_loss_heatmap")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 11 — Pie chart: loss contribution at last epoch
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_loss_contribution_pie(self):
         contributions = {}
         for k in LOSS_KEYS:
@@ -645,9 +615,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 11_loss_contribution")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 12 — All Metrics Combined Dashboard
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_dashboard(self):
         epochs     = self._epochs()
         val_epochs = self._val_epochs()
@@ -657,7 +625,7 @@ class MetricsTracker:
         fig = plt.figure(figsize=(20, 14), facecolor='white')
         gs  = gridspec.GridSpec(3, 4, figure=fig, hspace=0.45, wspace=0.35)
 
-        # ── Row 0: Total loss / PSNR / SSIM / LR ─────────────────────────────
+        # Row 0: Total loss / PSNR / SSIM / LR 
         ax_total = fig.add_subplot(gs[0, 0])
         ax_total.set_facecolor('white')
         ax_total.plot(epochs, self.history['train_total'],
@@ -700,7 +668,7 @@ class MetricsTracker:
         ax_lr.set_title('Learning Rate', fontweight='bold')
         ax_lr.grid(True, alpha=0.3, which='both')
 
-        # ── Row 1: First 4 individual train losses ────────────────────────────
+        # Row 1: First 4 individual train losses 
         for i, k in enumerate(LOSS_KEYS[:4]):
             ax = fig.add_subplot(gs[1, i])
             ax.set_facecolor('white')
@@ -713,7 +681,7 @@ class MetricsTracker:
             ax.grid(True, alpha=0.3)
             ax.set_ylim(bottom=0)
 
-        # ── Row 2: Remaining 3 losses / cosine identity / NME / gap ──────────
+        # Row 2: Remaining 3 losses / cosine identity / NME / gap 
         for i, k in enumerate(LOSS_KEYS[4:]):
             ax = fig.add_subplot(gs[2, i])
             ax.set_facecolor('white')
@@ -761,9 +729,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 12_dashboard")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 13 — Cosine Identity & NME 2D
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_identity_and_landmarks(self):
         val_epochs = self._val_epochs()
         if not val_epochs:
@@ -826,9 +792,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 13_identity_landmarks")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # PLOT 14 — MAE / Normal Consistency / Mean Edge Length
-    # ══════════════════════════════════════════════════════════════════════════
     def plot_geometry_and_mae(self):
         val_epochs = self._val_epochs()
         if not val_epochs:
@@ -894,9 +858,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved plot: 14_geometry_mae")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # Reconstruction Grid (called from val_epoch in train.py via visualise.py)
-    # ══════════════════════════════════════════════════════════════════════════
     def save_reconstruction_grid(self,
                                   inputs:    torch.Tensor,
                                   rendered:  torch.Tensor,
@@ -950,9 +912,7 @@ class MetricsTracker:
         plt.close(fig)
         print(f"[Metrics] Saved reconstruction: epoch {epoch:03d}")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # save_all_plots — call at end of each epoch
-    # ══════════════════════════════════════════════════════════════════════════
     def save_all_plots(self):
         """Save every plot. Safe to call after every epoch."""
         self.plot_total_loss()
@@ -971,19 +931,14 @@ class MetricsTracker:
         self.plot_geometry_and_mae()         # new
         print(f"[Metrics] All plots saved → {self.plots_dir}")
 
-    # ══════════════════════════════════════════════════════════════════════════
     # Print summary table to console
-    # ══════════════════════════════════════════════════════════════════════════
     def print_summary(self):
         epochs = self._epochs()
         if not epochs:
             return
 
-        print("\n" + "═" * 70)
         print(f"  FaceARCs Training Summary — {len(epochs)} epochs completed")
-        print("═" * 70)
         print(f"  {'Metric':<30} {'Current':>10} {'Best':>10} {'Epoch':>8}")
-        print("─" * 70)
 
         def _row(name, data, ep_list=None, higher_is_better=False):
             if not data:
@@ -1000,27 +955,22 @@ class MetricsTracker:
         # Losses
         _row("Train Loss (total)",     self.history['train_total'])
         _row("Val Loss (total)",       self.history['val_total'],   val_ep)
-        print("─" * 70)
 
         # Image quality
         _row("PSNR (dB)",              self.history['psnr'],        val_ep, True)
         _row("SSIM",                   self.history['ssim'],        val_ep, True)
         _row("MAE",                    self.history['mae'],         val_ep)
-        print("─" * 70)
 
         # Geometry
         _row("Mesh Regularity",        self.history['mesh_reg'],    val_ep)
         _row("Normal Consistency",     self.history['normal_consistency'], val_ep, True)
         _row("Mean Edge Length",       self.history['mean_edge_length'],   val_ep)
-        print("─" * 70)
 
         # Identity / landmarks
         _row("Cosine Identity",        self.history['cosine_identity'], val_ep, True)
         _row("NME 2D",                 self.history['nme_2d'],          val_ep)
-        print("─" * 70)
 
         # Per-term train losses
         for k in LOSS_KEYS:
             _row(f"  └ {LOSS_LABELS.get(k, k)[:26]}",
                  self.history['train_losses'][k])
-        print("═" * 70 + "\n")
