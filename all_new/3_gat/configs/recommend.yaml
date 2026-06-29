@@ -1,0 +1,29 @@
+# GCN — use 1 layer to avoid oversmoothing
+gcn:
+  arch: "gcn"
+  num_layers: 1
+  hidden_dim: 128
+  dropout: 0.1
+  heads: 2        # ignored for gcn, harmless
+  residual: true
+  max_verts: 10000
+
+# GraphSAGE — use 2 layers, sweet spot
+gcn:
+  arch: "graphsage"
+  num_layers: 2
+  hidden_dim: 128
+  dropout: 0.1
+  heads: 2        # ignored for graphsage, harmless
+  residual: true
+  max_verts: 10000
+
+# GAT — use 2 layers as discussed
+gcn:
+  arch: "gat"
+  num_layers: 2
+  hidden_dim: 128
+  dropout: 0.1
+  heads: 2
+  residual: true
+  max_verts: 10000
