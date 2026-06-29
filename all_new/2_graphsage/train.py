@@ -1,7 +1,6 @@
 """
 train.py
 FaceARCs Training Script — self-supervised, no annotation required.
-
 Usage:
     python train.py --config configs/config.yaml
     python train.py --config configs/config.yaml --resume checkpoints/epoch_10.pt

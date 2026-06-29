@@ -65,7 +65,7 @@ def load_bfm(model_path: str, n_shape=80, n_exp=64, n_tex=80, n_verts=10698):
 
     suffix = path.suffix.lower()
 
-    # ── HDF5 / BFM 2019 ───────────────────────────────────────────────────────
+    # HDF5 / BFM 2019
     if suffix in ('.h5', '.hdf5'):
         try:
             import h5py
@@ -109,7 +109,7 @@ def load_bfm(model_path: str, n_shape=80, n_exp=64, n_tex=80, n_verts=10698):
             print(f"[BFM] Error loading .h5: {e}. Falling back to synthetic BFM.")
             return _make_synthetic_bfm(n_shape, n_exp, n_tex)
 
-    # ── MAT / BFM 09 ──────────────────────────────────────────────────────────
+    # MAT / BFM 09 
     try:
         import scipy.io as sio
         raw = sio.loadmat(str(path))

@@ -134,7 +134,7 @@ class ArcFaceEncoder(nn.Module):
 
         if path and path.exists():
             if path.suffix.lower() == '.onnx':
-                # ── ONNX path ──────────────────────────────────────────────
+                # ONNX path 
                 try:
                     import onnxruntime as ort
                     providers = (['CUDAExecutionProvider', 'CPUExecutionProvider']
@@ -155,7 +155,7 @@ class ArcFaceEncoder(nn.Module):
                     self._ort_session = None
                     self._build_pytorch_backbone(None)
             else:
-                # ── PyTorch .pth path ───────────────────────────────────────
+                # PyTorch .pth path 
                 self._build_pytorch_backbone(str(path))
         else:
             if weights_path:
