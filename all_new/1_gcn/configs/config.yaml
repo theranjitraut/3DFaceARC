@@ -2,9 +2,7 @@
 # FaceARCs - Face Analysis and Reconstruction Components System
 # Configuration for unannotated single-view dataset
 
-# ─────────────────────────────────────────
 # DATASET
-# ─────────────────────────────────────────
 dataset:
   root_dir: "./data/images"          # folder containing raw face images
   image_size: 224                    # resize all images to this
@@ -14,9 +12,7 @@ dataset:
   num_workers: 0             # keep 0: MediaPipe FaceMesh is not picklable on Windows
   augmentation: true
 
-# ─────────────────────────────────────────
 # 3DMM (Basel Face Model prior)
-# ─────────────────────────────────────────
 bfm:
   model_path: "./data/BFM/model2019_bfm.h5"   # BFM2019 HDF5 format
   n_shape: 80          # number of shape PCA components (max 199)
@@ -24,9 +20,7 @@ bfm:
   n_tex: 80            # number of texture components (max 199)
   n_vertices: 10698    # BFM2019 vertex count
 
-# ─────────────────────────────────────────
 # MODEL ARCHITECTURE
-# ─────────────────────────────────────────
 model:
   # CNN Backbone (feature extractor)
   backbone: "resnet50"               # resnet50 | resnet34 | efficientnet_b3
@@ -82,9 +76,7 @@ model:
     residual: true
     max_verts: 10698
 
-# ─────────────────────────────────────────
 # SELF-SUPERVISED TRAINING
-# ─────────────────────────────────────────
 training:
   epochs: 100
   batch_size: 6
@@ -108,9 +100,7 @@ training:
     symmetry: 0.2         # face symmetry loss
     id_preserve: 0.5      # ArcFace identity preservation
 
-# ─────────────────────────────────────────
 # RENDERING
-# ─────────────────────────────────────────
 renderer:
   image_size: 224
   blur_radius: 0.0
@@ -127,9 +117,7 @@ renderer:
   nerf_coeff_embed: 64
   nerf_hidden: 256
 
-# ─────────────────────────────────────────
 # PATHS
-# ─────────────────────────────────────────
 paths:
   checkpoints: "./checkpoints"
   outputs: "./outputs"

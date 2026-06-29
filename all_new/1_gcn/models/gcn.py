@@ -24,7 +24,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# ── PyTorch Geometric import ───────────────────────────────────────────────────
+# PyTorch Geometric import 
 try:
     from torch_geometric.nn import GATv2Conv, GCNConv, SAGEConv
     PYG_AVAILABLE = True
@@ -32,10 +32,7 @@ except ImportError:
     print("[GCN] torch_geometric not found. Using built-in fallback GCN.")
     PYG_AVAILABLE = False
 
-
-# ══════════════════════════════════════════════════════════════════════════════
 # Graph construction utilities
-# ══════════════════════════════════════════════════════════════════════════════
 
 def faces_to_edge_index(faces: torch.Tensor) -> torch.Tensor:
     """Convert face indices (F,3) → undirected edge_index (2, E)."""
@@ -66,10 +63,7 @@ def build_adj_matrix(edge_index: torch.Tensor, n_verts: int) -> torch.Tensor:
     ).coalesce()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
 # Fallback pure-PyTorch GCN (no torch_geometric)
-# ══════════════════════════════════════════════════════════════════════════════
-
 class SimpleGCNLayer(nn.Module):
     def __init__(self, in_dim, out_dim):
         super().__init__()
@@ -101,10 +95,7 @@ class FallbackGCN(nn.Module):
             x = F.dropout(x, p=self.dropout, training=self.training)
         return self.out_lin(x)
 
-
-# ══════════════════════════════════════════════════════════════════════════════
 # Architecture blocks (PyG-based)
-# ══════════════════════════════════════════════════════════════════════════════
 
 class GCNBlock(nn.Module):
     """
@@ -182,11 +173,7 @@ class GATBlock(nn.Module):
             h   = h + res
         return self.act(self.norm(h))
 
-
-# ══════════════════════════════════════════════════════════════════════════════
 # Unified Refinement Network (picks architecture from config)
-# ══════════════════════════════════════════════════════════════════════════════
-
 ARCH_REGISTRY = {
     'gcn':       GCNBlock,
     'graphsage': GraphSAGEBlock,
@@ -259,11 +246,7 @@ class MeshRefinementNetwork(nn.Module):
             h = layer(h, edge_index)
         return self.output_head(h)
 
-
-# ══════════════════════════════════════════════════════════════════════════════
 # Batched GCN Wrapper
-# ══════════════════════════════════════════════════════════════════════════════
-
 class BatchedGCNRefiner(nn.Module):
     """
     Wraps MeshRefinementNetwork (or FallbackGCN) to handle a batch of meshes.
@@ -298,7 +281,7 @@ class BatchedGCNRefiner(nn.Module):
         self._sub_idx_cache:    dict = {}
         self._batched_ei_cache: dict = {}
 
-    # ── edge index helpers ────────────────────────────────────────────────────
+    # edge index helpers
 
     def _get_edge_index(self, faces: torch.Tensor,
                         sub_idx: torch.Tensor = None) -> torch.Tensor:
@@ -338,7 +321,7 @@ class BatchedGCNRefiner(nn.Module):
             )
         return self._sub_idx_cache[key]
 
-    # ── forward ───────────────────────────────────────────────────────────────
+    # forward 
 
     def forward(self, verts: torch.Tensor, node_feats: torch.Tensor,
                 faces: torch.Tensor) -> torch.Tensor:
@@ -350,7 +333,7 @@ class BatchedGCNRefiner(nn.Module):
         """
         B, V, _ = verts.shape
 
-        # ── vertex subsampling ────────────────────────────────────────────────
+        # vertex subsampling 
         if V > self.max_verts:
             sub_idx    = self._get_sub_idx(V, verts.device)
             verts_sub  = verts[:, sub_idx, :]
@@ -395,11 +378,7 @@ class BatchedGCNRefiner(nn.Module):
 
         return verts + delta
 
-
-# ══════════════════════════════════════════════════════════════════════════════
 # CNN feature → per-vertex feature projection
-# ══════════════════════════════════════════════════════════════════════════════
-
 class VertexFeatureSampler(nn.Module):
     """
     Projects 3D vertices onto the image plane and samples CNN feature map
@@ -436,19 +415,13 @@ class VertexFeatureSampler(nn.Module):
         sampled = sampled.squeeze(-1).permute(0, 2, 1).contiguous()
         return self.proj(sampled)
 
-
-# ══════════════════════════════════════════════════════════════════════════════
 # Architecture comparison summary (for reference)
-# ══════════════════════════════════════════════════════════════════════════════
 """
 ARCHITECTURE COMPARISON
-─────────────────────────────────────────────────────────────
 arch        │ Speed   │ Memory │ Quality │ Best for
-────────────┼─────────┼────────┼─────────┼───────────────────
 gcn         │ Fast    │ Low    │ Good    │ Baseline, ablation
 graphsage   │ Medium  │ Medium │ Better  │ Large meshes, inductive
 gat         │ Slow    │ High   │ Best    │ Complex faces, fine detail
-─────────────────────────────────────────────────────────────
 
 CONFIG EXAMPLE:
     model:

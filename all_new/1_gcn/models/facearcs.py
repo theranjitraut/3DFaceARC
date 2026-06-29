@@ -22,8 +22,6 @@ from models.gaussian_splatting import GaussianSplattingRenderer
 
 class FaceARCs(nn.Module):
     """
-    FaceARCs v2 — End-to-end 3D Face Reconstruction.
-
     Pipeline:
       1.  CNN backbone        → feature vector + intermediate feature map
       2.  MLP regressor       → 3DMM coefficients (shape, exp, tex, pose)
